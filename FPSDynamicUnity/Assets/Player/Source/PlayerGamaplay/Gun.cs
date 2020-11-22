@@ -10,10 +10,21 @@ public class Gun : MonoBehaviour
     protected Transform spawnBullet;
 
     [SerializeField]
+    protected ParticleSystem wuzzleFlash;
+
+    [SerializeField]
+    protected bool bulletSpawnCamera;
+    [SerializeField]
+    protected float distSpawn = 2f;
+
+    [SerializeField]
     protected float TimeReload = 4f;
+    bool isReloading = false;
+
     [SerializeField]
     protected int nbLoaderBulletMax = 10;
     protected int nbLoaderBullet;
+    [SerializeField]
     protected int nbBagBullet = 30;
 
     protected UIPlayer UI;
@@ -22,9 +33,13 @@ public class Gun : MonoBehaviour
     void Start()
     {
         UI = FindObjectOfType<UIPlayer>();
-        UI.CurrentNbBulletDelegate(nbLoaderBulletMax);
-        UI.MaxNbBulletDelegate(nbLoaderBulletMax);
+        if (UI)
+        {
+            UI.CurrentNbBulletDelegate(nbLoaderBulletMax);
+            UI.MaxNbBulletDelegate(nbLoaderBulletMax);
+        }
         nbLoaderBullet = nbLoaderBulletMax;
+        isReloading = false;
     }
 
     // Update is called once per frame
@@ -33,11 +48,11 @@ public class Gun : MonoBehaviour
         if(Input.GetButtonDown("Fire1") && nbLoaderBullet > 0)
         {
             InstantiateBullet();
+            wuzzleFlash.Play();
         }
 
-        if (Input.GetButtonDown("Reload") && nbLoaderBullet != nbLoaderBulletMax && nbBagBullet > 0)
+        if (Input.GetButtonDown("Reload") && nbLoaderBullet != nbLoaderBulletMax && nbBagBullet > 0 && !isReloading)
         {
-            Debug.Log("Reload");
             StartCoroutine("WaitReloadGun");
         }
     }
@@ -57,12 +72,18 @@ public class Gun : MonoBehaviour
             nbBagBullet = 0;
         }
         nbLoaderBullet += nbBulletCanAdd;
-
-        UI.CurrentNbBulletDelegate(nbLoaderBullet);
+        if (UI)
+        {
+            UI.CurrentNbBulletDelegate(nbLoaderBullet);
+        }
+        isReloading = false;
+        UI.EndReloadCircleAnimation();
     }
 
     IEnumerator WaitReloadGun()
     {
+        isReloading = true;
+        UI.ReloadCircleAnimation(TimeReload);
         yield return new WaitForSeconds(TimeReload);
 
         ReloadGun();

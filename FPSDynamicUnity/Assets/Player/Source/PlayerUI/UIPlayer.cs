@@ -15,17 +15,31 @@ public class UIPlayer : MonoBehaviour
 
     [SerializeField]
     private Text nbBulletT;
+    [SerializeField]
+    private Image reloadCircle;
+
+    private float reloadTimer;
+    private float currentRealoadTimer;
+    private bool reload = false;
     // Start is called before the first frame update
     void Start()
     {
         CurrentNbBulletDelegate = UpdateCurrentBulletT;
         MaxNbBulletDelegate = UpdateMaxBulletT;
+        reloadCircle.enabled = false;
     }
 
     // Update is called once per frame
     void Update()
     {
-        
+       if(reload)
+       {
+            currentRealoadTimer -= Time.deltaTime;
+            reloadCircle.fillAmount = currentRealoadTimer / reloadTimer;
+
+            if (currentRealoadTimer <= 0)
+                reload = false;
+       }
     }
 
     void UpdateCurrentBulletT(int nbBullet)
@@ -43,5 +57,19 @@ public class UIPlayer : MonoBehaviour
         nbBulletT.text = split[0] + "/" + split[1];
     }
 
+    public void ReloadCircleAnimation(float waitTimer)
+    {
+        reloadTimer = waitTimer;
+        currentRealoadTimer = waitTimer;
+        reload = true;
+        reloadCircle.enabled = true;
+    }
+
+    public void EndReloadCircleAnimation()
+    {
+        reloadCircle.fillAmount = 1;
+        reloadCircle.enabled = false;
+        reload = false;
+    }
 
 }

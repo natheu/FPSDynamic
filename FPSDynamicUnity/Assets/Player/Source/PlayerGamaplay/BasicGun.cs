@@ -6,8 +6,16 @@ public class BasicGun : Gun
 {
     protected override void InstantiateBullet()
     {
-        Instantiate(prefabBullet, spawnBullet.position, spawnBullet.rotation);
+        if (!bulletSpawnCamera)
+            Instantiate(prefabBullet, spawnBullet.position, spawnBullet.rotation);
+        else
+        {
+            Transform camTransform = Camera.main.transform;
+            Instantiate(prefabBullet, camTransform.position + distSpawn * camTransform.forward, spawnBullet.rotation);
+        }
+
         nbLoaderBullet--;
-        UI.CurrentNbBulletDelegate(nbLoaderBullet);
+        if(UI)
+            UI.CurrentNbBulletDelegate(nbLoaderBullet);
     }
 }
